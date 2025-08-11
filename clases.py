@@ -61,39 +61,35 @@ class Biblioteca:
         self.cargar_libros()
 
     def guardar_libros(self):
-        """Guarda la lista de libros en un archivo de texto (CSV)."""
+        """Guarda la lista de libros en un archivo de texto CSV."""
         try:
             with open("biblioteca.txt", "w") as f:
                 for libro in self.libros:
                     f.write(f"{libro.titulo},{libro.autor},{libro.year},{libro.prestado}\n")
-            print("Datos de la biblioteca guardados correctamente.")
-        except FileNotFoundError:
-            print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
-            self.libros = []
         except Exception as e:
-            print(f"Error al cargar los datos: {e}")
-            self.libros = []
+            print(f"Error al guardar los datos: {e}")
+
 
     def cargar_libros(self):
-        """Carga la lista de libros desde un archivo de texto (CSV)."""
+        """Carga la lista de libros desde un archivo de texto CSV."""
         try:
             with open("biblioteca.txt", "r") as f:
                 for linea in f:
                     partes = linea.strip().split(',')
                     if len(partes) == 4:
                         titulo, autor, year_str, prestado_str = partes
-                        year = int(year_str)
-                        prestado = prestado_str.lower() == 'true'
-                        nuevo_libro = Libro(titulo, autor, year)
-                        nuevo_libro.prestado = prestado
-                        self.libros.append(nuevo_libro)
-            print("Datos de la biblioteca cargados exitosamente.")
+                        try:
+                            year = int(year_str)
+                            prestado = prestado_str.lower() == 'true'
+                            nuevo_libro = Libro(titulo, autor, year)
+                            nuevo_libro.prestado = prestado
+                            self.libros.append(nuevo_libro)
+                        except ValueError:
+                            print(f"Error de formato en línea: {linea}")
         except FileNotFoundError:
             print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
-            self.libros = []
         except Exception as e:
             print(f"Error al cargar los datos: {e}")
-            self.libros = []
 
     def agregar_libro(self, libro):
         if self.buscar_libro_por_titulo(libro.titulo):
@@ -103,32 +99,21 @@ class Biblioteca:
             self.guardar_libros()
 
     def eliminar_libro_por_titulo(self, titulo):
-        try:
-            libro_encontrado = self.buscar_libro_por_titulo(titulo)
-            if libro_encontrado:
-                self.libros.remove(libro_encontrado)
-                self.guardar_libros()
-                return True
-            return False
-        except FileNotFoundError:
-            print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
-            self.libros = []
-        except Exception as e:
-            print(f"Error al cargar los datos: {e}")
-            self.libros = []
+        libro_encontrado = self.buscar_libro_por_titulo(titulo)
+        if libro_encontrado:
+            self.libros.remove(libro_encontrado)
+            self.guardar_libros()
+            return True
+        return False
+        
             
     def buscar_libro_por_titulo(self, titulo):
-        try: 
-            for libro in self.libros:
-                if libro.titulo.lower() == titulo.lower():
-                    return libro
-            return None
-        except FileNotFoundError:
-            print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
-            self.libros = []
-        except Exception as e:
-            print(f"Error al cargar los datos: {e}")
-            self.libros = []
+        
+        for libro in self.libros:
+            if libro.titulo.lower() == titulo.lower():
+                return libro
+        return None
+        
 
     def listar_libros(self):
         return self.libros
@@ -137,34 +122,24 @@ class Biblioteca:
         return [libro for libro in self.libros if not libro.prestado]
 
     def marcar_como_prestado(self, titulo):
-        try: 
-            libro = self.buscar_libro_por_titulo(titulo)
-            if libro and not libro.prestado:
-                libro.prestado = True
-                self.guardar_libros()
-                return True
-            return False
-        except FileNotFoundError:
-            print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
-            self.libros = []
-        except Exception as e:
-            print(f"Error al cargar los datos: {e}")
-            self.libros = []
+        
+        libro = self.buscar_libro_por_titulo(titulo)
+        if libro and not libro.prestado:
+            libro.prestado = True
+            self.guardar_libros()
+            return True
+        return False
+        
 
     def devolver_libro(self, titulo):
-        try:
-            libro = self.buscar_libro_por_titulo(titulo)
-            if libro and libro.prestado:
-                libro.prestado = False
-                self.guardar_libros()
-                return True
-            return False
-        except FileNotFoundError:
-            print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
-            self.libros = []
-        except Exception as e:
-            print(f"Error al cargar los datos: {e}")
-            self.libros = []
+        
+        libro = self.buscar_libro_por_titulo(titulo)
+        if libro and libro.prestado:   
+            libro.prestado = False
+            self.guardar_libros()
+            return True
+        return False
+        
 
 
 class Libro_digital(Libro):
