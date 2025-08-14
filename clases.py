@@ -1,58 +1,58 @@
 class Libro:
     def __init__(self, titulo, autor, year):
-        self._titulo = titulo
-        self._autor = autor
-        self._year = year
-        self._prestado = False
+        self.__titulo = titulo
+        self.__autor = autor
+        self.__year = year
+        self.__prestado = False
 
     @property
     def titulo(self):
-        return self._titulo
+        return self.__titulo
     
     @titulo.setter
     def titulo(self, nuevo_titulo):
         if nuevo_titulo:
-            self._titulo = nuevo_titulo
+            self.__titulo = nuevo_titulo
         else:
             print("Error: El título no puede estar vacío.")
 
     @property
     def autor(self):
-        return self._autor
+        return self.__autor
 
     @autor.setter
     def autor(self, nuevo_autor):
         if nuevo_autor:
-            self._autor = nuevo_autor
+            self.__autor = nuevo_autor
         else:
             print("Error: El autor no puede estar vacío.")
 
     @property
     def year(self):
-        return self._year
+        return self.__year
 
     @year.setter
     def year(self, nuevo_year):
         if isinstance(nuevo_year, int) and nuevo_year > 0:
-            self._year = nuevo_year
+            self.__year = nuevo_year
         else:
             print("Error: El año debe ser un número entero positivo.")
             
     @property
     def prestado(self):
-        return self._prestado
+        return self.__prestado
 
     @prestado.setter
     def prestado(self, estado):
         if isinstance(estado, bool):
-            self._prestado = estado
+            self.__prestado = estado
         else:
             print("Error: El estado de préstamo debe ser un valor booleano (True/False).")
             
     # Metodo str
     def __str__(self):
-        estado = "Prestado" if self._prestado else "Disponible"
-        return f"Título: {self._titulo}, Autor: {self._autor}, Año: {self._year}, Estado: {estado}"
+        estado = "Prestado" if self.__prestado else "Disponible"
+        return f"Título: {self.__titulo}, Autor: {self.__autor}, Año: {self.__year}, Estado: {estado}"
 
 
 class Biblioteca:
@@ -66,30 +66,47 @@ class Biblioteca:
             with open("biblioteca.txt", "w") as f:
                 for libro in self.libros:
                     f.write(f"{libro.titulo},{libro.autor},{libro.year},{libro.prestado}\n")
-        except Exception as e:
-            print(f"Error al guardar los datos: {e}")
+        except FileNotFoundError:
+            print(f"Archivo no existe.")
+        except IOError:
+            print(f"No se puede leer/escribir el archivo.")
 
 
     def cargar_libros(self):
         """Carga la lista de libros desde un archivo de texto CSV."""
         try:
-            with open("biblioteca.txt", "r") as f:
-                for linea in f:
-                    partes = linea.strip().split(',')
-                    if len(partes) == 4:
-                        titulo, autor, year_str, prestado_str = partes
+            with open("biblioteca.txt", "r", encoding="utf-8") as f:
+                lineas = f.readlines()
+                for linea in lineas:
+                    datos = linea.strip().split(",")
+                    if len(datos) == 4:
+                        titulo, autor, year_str, prestado_str = datos
                         try:
                             year = int(year_str)
-                            prestado = prestado_str.lower() == 'true'
-                            nuevo_libro = Libro(titulo, autor, year)
-                            nuevo_libro.prestado = prestado
-                            self.libros.append(nuevo_libro)
+                            prestado = prestado_str.lower() == "true"
+                            libro = Libro(titulo, autor, year)
+                            libro.prestado = prestado
+                            self.libros.append(libro)
                         except ValueError:
-                            print(f"Error de formato en línea: {linea}")
+                            print(f"Error: Año inválido en línea: {linea.strip()}")
+                    else:
+                        print(f"Error: Formato incorrecto en línea: {linea.strip()}")
         except FileNotFoundError:
-            print("No se encontró el archivo 'biblioteca.txt'. Se creará uno nuevo al guardar.")
+            print("Archivo 'biblioteca.txt' no encontrado. Se creará al guardar.")
         except Exception as e:
             print(f"Error al cargar los datos: {e}")
+
+            
+            """
+            try:
+                with open("biblioteca.txt", "r") as f:
+                    lineas = f.readlines()
+                    for linea in lineas:
+                        datos = linea.strip().split(",")
+                        clase, nombre, edad,
+                        
+            
+            """
 
     def agregar_libro(self, libro):
         if self.buscar_libro_por_titulo(libro.titulo):
